@@ -1,0 +1,278 @@
+{
+  "status": "PASS_16_OF_16",
+  "code_commit": "5ff942daa7aa3a34b17bb6c5930f11bd37d4eeb5",
+  "code_sha256": "86ab116ed8915045a35acf39ada577dde758f018bbb9675c852a827abce29761",
+  "reference_sha256": "d697bfb841ab2b099a1961a4575b671ba08867748e5cee63225f55a4be365b3a",
+  "sanitizer": "compute-sanitizer.exe (Compute Sanitizer 2026.3.0.0)",
+  "sanitizer_version": "Version 2026.3.0.0 (build 38855100) (public-release)",
+  "python_executable": "python.exe (Python 3.13.14, GPU validation environment)",
+  "environment": {
+    "python": "3.13.14",
+    "cupy": "14.2.0",
+    "cuda_runtime": 12090,
+    "device": "NVIDIA GeForce RTX 5080 Laptop GPU"
+  },
+  "timeout_seconds_per_cell": 600,
+  "cases": {
+    "odd_i1": {
+      "n": 127,
+      "trials": 1,
+      "max_imf": 1,
+      "noise_sha256": "1fd4c3ba2cc67ad8b025498d99c0e447e5efd21e8987da1e5ed43ee247fe25c5"
+    },
+    "block_i5": {
+      "n": 129,
+      "trials": 5,
+      "max_imf": 2,
+      "noise_sha256": "2512d1e683d5b48370fe0cbe99499895595ff00caeaf3c91a7c02776d730fb99"
+    },
+    "three_stage": {
+      "n": 192,
+      "trials": 4,
+      "max_imf": 3,
+      "noise_sha256": "e5c05e09ecf9d210ca9375426b6a63976aa97c52abf89e609ab6facc4a83ef20"
+    },
+    "colominas_i50": {
+      "n": 1000,
+      "trials": 50,
+      "max_imf": 1,
+      "noise_sha256": "0d87fd6725a6fffdca41256842ad07f8034fbef47ccf9ea4e7821baf7760f454"
+    }
+  },
+  "summary_rule": "memcheck/synccheck/initcheck require ERROR SUMMARY: 0 errors; racecheck requires RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings). All require exit 0 and BATCH_CASE_PASS.",
+  "log_directory": "results/batch_sanitizer/gate_5ff942d",
+  "cells": [
+    {
+      "case": "odd_i1",
+      "tool": "memcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 10.562,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_memcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_memcheck.stdout.txt",
+      "stdout_sha256": "1e7cabdd6f682571c7347c69ee66eff6356d8e8e588ee91b984446c0da76f5c2"
+    },
+    {
+      "case": "odd_i1",
+      "tool": "synccheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 7.428,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_synccheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_synccheck.stdout.txt",
+      "stdout_sha256": "1e7cabdd6f682571c7347c69ee66eff6356d8e8e588ee91b984446c0da76f5c2"
+    },
+    {
+      "case": "odd_i1",
+      "tool": "racecheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 20.066,
+      "summary_counts": [
+        0,
+        0,
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_racecheck.log",
+      "log_sha256": "c69d09b31a66173faf98f267db57c7eb988035ce364fa0f0f184ffc933c541a7",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_racecheck.stdout.txt",
+      "stdout_sha256": "1e7cabdd6f682571c7347c69ee66eff6356d8e8e588ee91b984446c0da76f5c2"
+    },
+    {
+      "case": "odd_i1",
+      "tool": "initcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 7.384,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_initcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\odd_i1_initcheck.stdout.txt",
+      "stdout_sha256": "1e7cabdd6f682571c7347c69ee66eff6356d8e8e588ee91b984446c0da76f5c2"
+    },
+    {
+      "case": "block_i5",
+      "tool": "memcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 16.888,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_memcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_memcheck.stdout.txt",
+      "stdout_sha256": "a8a89db68cf3d3737c14a687643fafaa80c2af3e8bb245fe74eeec398b6bddef"
+    },
+    {
+      "case": "block_i5",
+      "tool": "synccheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 9.532,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_synccheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_synccheck.stdout.txt",
+      "stdout_sha256": "a8a89db68cf3d3737c14a687643fafaa80c2af3e8bb245fe74eeec398b6bddef"
+    },
+    {
+      "case": "block_i5",
+      "tool": "racecheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 35.816,
+      "summary_counts": [
+        0,
+        0,
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_racecheck.log",
+      "log_sha256": "c69d09b31a66173faf98f267db57c7eb988035ce364fa0f0f184ffc933c541a7",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_racecheck.stdout.txt",
+      "stdout_sha256": "a8a89db68cf3d3737c14a687643fafaa80c2af3e8bb245fe74eeec398b6bddef"
+    },
+    {
+      "case": "block_i5",
+      "tool": "initcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 10.58,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_initcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\block_i5_initcheck.stdout.txt",
+      "stdout_sha256": "a8a89db68cf3d3737c14a687643fafaa80c2af3e8bb245fe74eeec398b6bddef"
+    },
+    {
+      "case": "three_stage",
+      "tool": "memcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 20.032,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_memcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_memcheck.stdout.txt",
+      "stdout_sha256": "4f60b4fad276077d10b50257032c446a0e1d1061cdf1dca2faa93cecd2e30dbc"
+    },
+    {
+      "case": "three_stage",
+      "tool": "synccheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 9.915,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_synccheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_synccheck.stdout.txt",
+      "stdout_sha256": "4f60b4fad276077d10b50257032c446a0e1d1061cdf1dca2faa93cecd2e30dbc"
+    },
+    {
+      "case": "three_stage",
+      "tool": "racecheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 48.372,
+      "summary_counts": [
+        0,
+        0,
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_racecheck.log",
+      "log_sha256": "c69d09b31a66173faf98f267db57c7eb988035ce364fa0f0f184ffc933c541a7",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_racecheck.stdout.txt",
+      "stdout_sha256": "4f60b4fad276077d10b50257032c446a0e1d1061cdf1dca2faa93cecd2e30dbc"
+    },
+    {
+      "case": "three_stage",
+      "tool": "initcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 13.718,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_initcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\three_stage_initcheck.stdout.txt",
+      "stdout_sha256": "4f60b4fad276077d10b50257032c446a0e1d1061cdf1dca2faa93cecd2e30dbc"
+    },
+    {
+      "case": "colominas_i50",
+      "tool": "memcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 32.814,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_memcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_memcheck.stdout.txt",
+      "stdout_sha256": "abd1c8437a3c0b45e62ac2f0c44b96b4df76f3c6f0baf73f45bc53a868229aa6"
+    },
+    {
+      "case": "colominas_i50",
+      "tool": "synccheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 12.773,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_synccheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_synccheck.stdout.txt",
+      "stdout_sha256": "abd1c8437a3c0b45e62ac2f0c44b96b4df76f3c6f0baf73f45bc53a868229aa6"
+    },
+    {
+      "case": "colominas_i50",
+      "tool": "racecheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 51.651,
+      "summary_counts": [
+        0,
+        0,
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_racecheck.log",
+      "log_sha256": "c69d09b31a66173faf98f267db57c7eb988035ce364fa0f0f184ffc933c541a7",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_racecheck.stdout.txt",
+      "stdout_sha256": "abd1c8437a3c0b45e62ac2f0c44b96b4df76f3c6f0baf73f45bc53a868229aa6"
+    },
+    {
+      "case": "colominas_i50",
+      "tool": "initcheck",
+      "status": "PASS",
+      "returncode": 0,
+      "seconds": 13.706,
+      "summary_counts": [
+        0
+      ],
+      "log": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_initcheck.log",
+      "log_sha256": "adba10db853bd67fe9009b776eefe7b61210d2cbe3eee029ba6fa188978b5832",
+      "stdout": "results\\batch_sanitizer\\gate_5ff942d\\colominas_i50_initcheck.stdout.txt",
+      "stdout_sha256": "abd1c8437a3c0b45e62ac2f0c44b96b4df76f3c6f0baf73f45bc53a868229aa6"
+    }
+  ]
+}
