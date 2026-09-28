@@ -1,13 +1,11 @@
-"""Resume Colominas comparisons only when CPU rows preserve the exact noise W."""
+"""Compare public CPU v2.0.0 with batched CUDA using identical explicit noise."""
 
 import argparse
-import contextlib
 import hashlib
+import importlib.util
 import json
-import math
 import platform
 import sys
-import threading
 import time
 from pathlib import Path
 
@@ -19,20 +17,44 @@ from iceemdan_cupy import ICEEMDAN, to_numpy
 from iceemdan_cupy.runtime import cp
 
 SIZES = (50, 100, 200, 400, 800)
-METRICS = (
-    "left_energy",
-    "right_energy",
-    "rrse_fast",
-    "rrse_slow_residue",
-    "rrse_reconstruction",
-)
-RTOL, ATOL = 1e-9, 1e-12
+METRICS = ("left_energy", "right_energy", "rrse_fast", "rrse_slow_residue", "rrse_reconstruction")
+RTOL, ATOL = 1e-9, 1e-10
 
 
-def protocol_sha256():
+def sha256(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def record_sha256(row):
+    payload = {key: value for key, value in row.items() if key != "record_sha256"}
+    return sha256(json.dumps(payload, sort_keys=True, allow_nan=False).encode())
+
+
+def json_safe(value):
+    if isinstance(value, float) and not np.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {key: json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [json_safe(item) for item in value]
+    return value
+
+
+def protocol_sha256(cpu_sha):
     digest = hashlib.sha256()
     digest.update(
-        f"python={sys.version};platform={platform.platform()};numpy={np.__version__};cupy={cp.__version__}".encode()
+        json.dumps(
+            {
+                "cpu_sha256": cpu_sha,
+                "python": sys.version,
+                "platform": platform.platform(),
+                "numpy": np.__version__,
+                "cupy": cp.__version__,
+                "rtol": RTOL,
+                "atol": ATOL,
+            },
+            sort_keys=True,
+        ).encode()
     )
     files = [
         Path(__file__).resolve(),
@@ -45,35 +67,6 @@ def protocol_sha256():
     return digest.hexdigest()
 
 
-def baseline_sha256(row):
-    values = {key: row[key] for key in ("modes", "stop_reason", *METRICS)}
-    return hashlib.sha256(json.dumps(values, sort_keys=True, allow_nan=False).encode()).hexdigest()
-
-
-def reusable(row, cpu, noise_hash, baseline_hash, protocol_hash):
-    if (
-        row.get("pass") is not True
-        or row.get("noise_sha256") != noise_hash
-        or row.get("baseline_sha256") != baseline_hash
-        or row.get("protocol_sha256") != protocol_hash
-    ):
-        return False
-    try:
-        return (
-            row["modes_cpu"] == row["modes_gpu"] == cpu["modes"]
-            and row["stop_cpu"] == row["stop_gpu"] == cpu["stop_reason"]
-            and all(
-                row["cpu"][key] == cpu[key]
-                and type(row["gpu"][key]) in (int, float)
-                and math.isfinite(row["gpu"][key])
-                and np.isclose(row["gpu"][key], cpu[key], rtol=RTOL, atol=ATOL)
-                for key in METRICS
-            )
-        )
-    except (KeyError, TypeError, ValueError):
-        return False
-
-
 def signal_parts():
     n = np.arange(1, 1001)
     fast = np.zeros(1000)
@@ -82,170 +75,192 @@ def signal_parts():
     return fast, slow, fast + slow
 
 
+def metrics(parts, fast, slow, x):
+    first = parts[0]
+    residue = x - first
+    return {
+        "left_energy": float(np.mean(first[10:490] ** 2)),
+        "right_energy": float(np.mean(first[760:990] ** 2)),
+        "rrse_fast": float(np.linalg.norm(first - fast) / np.linalg.norm(fast)),
+        "rrse_slow_residue": float(np.linalg.norm(residue - slow) / np.linalg.norm(slow)),
+        "rrse_reconstruction": float(np.linalg.norm(parts.sum(axis=0) - x) / np.linalg.norm(x)),
+    }
+
+
+def discrete(info):
+    return {
+        "stages": len(info["stages"]),
+        "stop_reason": info["stop_reason"],
+        "natural_termination": info["natural_termination"],
+        "noise_mode_counts": info["noise_mode_counts"],
+        "missing_noise_modes": [s["missing_noise_modes"] for s in info["stages"]],
+        "sift_iterations": [s["sift_iterations"] for s in info["stages"]],
+    }
+
+
+def cpu_class(path):
+    spec = importlib.util.spec_from_file_location("public_iceemdan_cpu", path)
+    if spec is None or spec.loader is None:
+        raise ValueError("Cannot load the public CPU source.")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    if module.__version__ != "2.0.0":
+        raise ValueError("The CPU source must be public v2.0.0.")
+    return module.ICEEMDAN
+
+
+def compare(cpu_parts, gpu_parts, cpu_info, gpu_info, fast, slow, x):
+    cpu_metrics = metrics(cpu_parts, fast, slow, x)
+    gpu_metrics = metrics(gpu_parts, fast, slow, x)
+    cpu_states, gpu_states = discrete(cpu_info), discrete(gpu_info)
+    same_shape = cpu_parts.shape == gpu_parts.shape
+    finite = bool(np.isfinite(cpu_parts).all() and np.isfinite(gpu_parts).all())
+    max_abs = float(np.max(np.abs(cpu_parts - gpu_parts))) if same_shape else None
+    norm = float(np.linalg.norm(cpu_parts - gpu_parts)) if same_shape else None
+    failures = []
+    if not same_shape:
+        failures.append("shape")
+    if not finite or not all(np.isfinite(list(cpu_metrics.values()) + list(gpu_metrics.values()))):
+        failures.append("nonfinite")
+    if same_shape and finite and not np.allclose(cpu_parts, gpu_parts, rtol=RTOL, atol=ATOL):
+        failures.append("components")
+    if cpu_states != gpu_states:
+        failures.append("discrete_diagnostics")
+    if not all(np.isclose(cpu_metrics[k], gpu_metrics[k], rtol=RTOL, atol=ATOL) for k in METRICS):
+        failures.append("metrics")
+    return {
+        "pass": not failures,
+        "failure_reasons": failures,
+        "shape_cpu": list(cpu_parts.shape),
+        "shape_gpu": list(gpu_parts.shape),
+        "finite": finite,
+        "max_abs_difference": max_abs,
+        "difference_l2": norm,
+        "cpu": cpu_metrics,
+        "gpu": gpu_metrics,
+        "diagnostics_cpu": cpu_states,
+        "diagnostics_gpu": gpu_states,
+    }
+
+
 def load_rows(path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
-@contextlib.contextmanager
-def keep_awake_on_ac(enabled):
-    if not enabled or sys.platform != "win32":
-        yield
-        return
-
-    import ctypes
-
-    class PowerStatus(ctypes.Structure):
-        _fields_ = [
-            ("ac", ctypes.c_ubyte),
-            ("battery", ctypes.c_ubyte),
-            ("percent", ctypes.c_ubyte),
-            ("reserved", ctypes.c_ubyte),
-            ("seconds_left", ctypes.c_uint),
-            ("seconds_full", ctypes.c_uint),
-        ]
-
-    stop = threading.Event()
-
-    def monitor():
-        kernel = ctypes.windll.kernel32
-        try:
-            while not stop.is_set():
-                status = PowerStatus()
-                on_ac = kernel.GetSystemPowerStatus(ctypes.byref(status)) and status.ac == 1
-                kernel.SetThreadExecutionState(0x80000001 if on_ac else 0x80000000)
-                stop.wait(30)
-        finally:
-            kernel.SetThreadExecutionState(0x80000000)
-
-    worker = threading.Thread(target=monitor, daemon=True)
-    worker.start()
-    try:
-        yield
-    finally:
-        stop.set()
-        worker.join()
+def checked_prefix(rows, pairs, selection_sha, protocol_sha, cpu_sha, n):
+    if len(rows) > len(pairs):
+        raise ValueError("Output has more rows than selected pairs.")
+    for row, (size, seed) in zip(rows, pairs, strict=False):
+        W = np.random.default_rng(seed).normal(size=(size, n))
+        noise_sha = sha256(W.tobytes())
+        baseline_sha = sha256(f"{cpu_sha}:{noise_sha}:epsilon=0.2:max_imf=-1".encode())
+        if (
+            (row.get("I"), row.get("seed")) != (size, seed)
+            or row.get("selection_sha256") != selection_sha
+            or row.get("protocol_sha256") != protocol_sha
+            or row.get("cpu_source_sha256") != cpu_sha
+            or row.get("noise_sha256") != noise_sha
+            or row.get("baseline_sha256") != baseline_sha
+            or row.get("pass") is not True
+            or row.get("failure_reasons") != []
+            or row.get("diagnostics_cpu") != row.get("diagnostics_gpu")
+            or row.get("record_sha256") != record_sha256(row)
+        ):
+            raise ValueError(f"Resume mismatch at I={size}, seed={seed}; use a new output file.")
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--baseline",
-        type=Path,
-        default=ROOT.parent / "iceemdan_results" / "colominas_100x5_iceemdan.jsonl",
+        "--cpu-source", type=Path, default=ROOT.parent / "iceemdan-cpu-public" / "ICEEMDAN.py"
     )
     parser.add_argument(
-        "--output", type=Path, default=ROOT / "results" / "colominas_100x5_cupy.jsonl"
+        "--output", type=Path, default=ROOT / "results" / "colominas_public_matched.jsonl"
     )
-    parser.add_argument("--max-runs", type=int, default=None)
-    parser.add_argument("--keep-awake-on-ac", action="store_true")
+    parser.add_argument("--sizes", type=int, nargs="+", default=SIZES)
+    parser.add_argument("--seeds", type=int, nargs="+", default=range(100))
+    parser.add_argument("--max-runs", type=int)
     args = parser.parse_args()
-
-    cpu_rows = load_rows(args.baseline)
-    baseline = {(row["I"], row["seed"]): row for row in cpu_rows}
-    pairs = [(size, seed) for seed in range(100) for size in SIZES]
-    if len(cpu_rows) != 500 or set(baseline) != set(pairs):
-        raise ValueError("The CPU baseline must contain each of the 500 (I, seed) pairs once.")
-    if any("W" not in row for row in cpu_rows):
-        print(
-            json.dumps(
-                {
-                    "status": "NON_REPRODUCIBLE",
-                    "reason": "Historical CPU rows do not preserve W; PCG64 and Philox differ at equal seeds.",
-                }
-            ),
-            flush=True,
-        )
-        return 2
+    if any(size not in SIZES for size in args.sizes) or len(set(args.sizes)) != len(args.sizes):
+        parser.error("sizes must be unique members of 50,100,200,400,800")
+    if any(seed not in range(100) for seed in args.seeds) or len(set(args.seeds)) != len(
+        args.seeds
+    ):
+        parser.error("seeds must be unique integers from 0 through 99")
     if args.max_runs is not None and args.max_runs < 1:
-        raise ValueError("--max-runs must be positive.")
-    fast, slow, x = signal_parts()
-    protocol_hash = protocol_sha256()
-    noise_hashes, baseline_hashes = {}, {}
-    for key, cpu in baseline.items():
-        size, seed = key
-        W = np.asarray(cpu["W"], dtype=np.float64)
-        if W.shape != (size, len(x)) or not np.isfinite(W).all():
-            raise ValueError(f"Invalid baseline W for I={size}, seed={seed}.")
-        if (
-            type(cpu.get("modes")) is not int
-            or cpu["modes"] < 0
-            or not isinstance(cpu.get("stop_reason"), str)
-            or not cpu["stop_reason"]
-            or any(
-                type(cpu.get(name)) not in (int, float) or not math.isfinite(cpu[name])
-                for name in METRICS
-            )
-        ):
-            raise ValueError(f"Invalid baseline metrics or states for I={size}, seed={seed}.")
-        noise_hashes[key] = hashlib.sha256(W.tobytes()).hexdigest()
-        baseline_hashes[key] = baseline_sha256(cpu)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    existing = load_rows(args.output) if args.output.exists() else []
-    done = {
-        (row["I"], row["seed"])
-        for row in existing
-        if (row["I"], row["seed"]) in baseline
-        and reusable(
-            row,
-            baseline[row["I"], row["seed"]],
-            noise_hashes[row["I"], row["seed"]],
-            baseline_hashes[row["I"], row["seed"]],
-            protocol_hash,
-        )
-    }
-    pending = [pair for pair in pairs if pair not in done]
-    print(f"Completed {len(done)}/500; pending {len(pending)}", flush=True)
+        parser.error("--max-runs must be positive")
 
-    with keep_awake_on_ac(args.keep_awake_on_ac), args.output.open("a", encoding="utf-8") as log:
+    pairs = [
+        (size, seed)
+        for size in SIZES
+        for seed in range(100)
+        if size in args.sizes and seed in args.seeds
+    ]
+    selection_sha = sha256(json.dumps(pairs).encode())
+    cpu_sha = sha256(args.cpu_source.read_bytes())
+    CPU = cpu_class(args.cpu_source)
+    protocol_sha = protocol_sha256(cpu_sha)
+    fast, slow, x = signal_parts()
+    existing = load_rows(args.output) if args.output.exists() else []
+    checked_prefix(existing, pairs, selection_sha, protocol_sha, cpu_sha, len(x))
+    print(
+        f"Completed {len(existing)}/{len(pairs)}; pending {len(pairs) - len(existing)}", flush=True
+    )
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    pending = pairs[len(existing) :]
+    with args.output.open("a", encoding="utf-8") as log:
         for size, seed in pending[: args.max_runs]:
-            start = time.perf_counter()
-            cpu = baseline[size, seed]
-            W = np.asarray(cpu["W"], dtype=np.float64)
-            model = ICEEMDAN(trials=size, epsilon=0.2, seed=seed)
-            parts = to_numpy(model(x, noise=W))
-            first = parts[0]
-            residue = x - first
-            gpu = {
-                "left_energy": float(np.mean(first[10:490] ** 2)),
-                "right_energy": float(np.mean(first[760:990] ** 2)),
-                "rrse_fast": float(np.linalg.norm(first - fast) / np.linalg.norm(fast)),
-                "rrse_slow_residue": float(np.linalg.norm(residue - slow) / np.linalg.norm(slow)),
-                "rrse_reconstruction": float(
-                    np.linalg.norm(parts.sum(axis=0) - x) / np.linalg.norm(x)
-                ),
-            }
-            differences = {key: abs(gpu[key] - cpu[key]) for key in METRICS}
-            passed = (
-                np.isfinite(parts).all()
-                and all(np.isfinite(cpu[key]) for key in METRICS)
-                and len(parts) - 1 == cpu["modes"]
-                and model.diagnostics_["stop_reason"] == cpu["stop_reason"]
-                and all(np.isclose(gpu[key], cpu[key], rtol=RTOL, atol=ATOL) for key in METRICS)
-            )
+            W = np.random.default_rng(seed).normal(size=(size, len(x)))
+            noise_sha = sha256(W.tobytes())
+            baseline_sha = sha256(f"{cpu_sha}:{noise_sha}:epsilon=0.2:max_imf=-1".encode())
             row = {
                 "I": size,
                 "seed": seed,
-                "noise_sha256": noise_hashes[size, seed],
-                "baseline_sha256": baseline_hashes[size, seed],
-                "protocol_sha256": protocol_hash,
-                "pass": bool(passed),
-                "seconds_gpu": time.perf_counter() - start,
-                "modes_gpu": len(parts) - 1,
-                "modes_cpu": cpu["modes"],
-                "stop_gpu": model.diagnostics_["stop_reason"],
-                "stop_cpu": cpu["stop_reason"],
-                "gpu": gpu,
-                "cpu": {key: cpu[key] for key in METRICS},
-                "absolute_differences": differences,
+                "selection_sha256": selection_sha,
+                "protocol_sha256": protocol_sha,
+                "cpu_source_sha256": cpu_sha,
+                "cpu_version": "2.0.0",
+                "noise_source": "numpy.default_rng(seed).normal((I,1000))",
+                "noise_sha256": noise_sha,
+                "baseline_sha256": baseline_sha,
+                "epsilon": 0.2,
+                "max_imf": -1,
+                "rtol": RTOL,
+                "atol": ATOL,
+                "gpu_route": "batch_emd=True,graph_control=False",
             }
-            log.write(json.dumps(row) + "\n")
+            try:
+                cpu = CPU(trials=size, epsilon=0.2, parallel=False)
+                rows = iter(W)
+                cpu.generate_noise = lambda scale, shape, noise_rows=rows: (
+                    next(noise_rows).copy() * scale
+                )
+                start = time.perf_counter()
+                cpu_parts = cpu(x, max_imf=-1)
+                cpu_seconds = time.perf_counter() - start
+                gpu = ICEEMDAN(trials=size, epsilon=0.2, batch_emd=True, graph_control=False)
+                start = time.perf_counter()
+                gpu_parts = to_numpy(gpu(x, max_imf=-1, noise=W))
+                cp.cuda.Device().synchronize()
+                gpu_seconds = time.perf_counter() - start
+                row.update(seconds_cpu=cpu_seconds, seconds_gpu=gpu_seconds)
+                row.update(
+                    compare(cpu_parts, gpu_parts, cpu.diagnostics_, gpu.diagnostics_, fast, slow, x)
+                )
+            except Exception as exc:
+                row.update(
+                    {"pass": False, "failure_reasons": [type(exc).__name__], "error": str(exc)}
+                )
+            row = json_safe(row)
+            row["record_sha256"] = record_sha256(row)
+            log.write(json.dumps(row, allow_nan=False) + "\n")
             log.flush()
             print(
-                f"I={size}, seed={seed}: {'PASS' if passed else 'FAIL'}, "
-                f"{row['seconds_gpu']:.1f}s, max metric difference={max(differences.values()):.3g}",
+                f"I={size}, seed={seed}: {'PASS' if row['pass'] else 'FAIL'}; "
+                f"CPU {row.get('seconds_cpu', 0):.1f}s, GPU {row.get('seconds_gpu', 0):.1f}s",
                 flush=True,
             )
-            if not passed:
+            if not row["pass"]:
                 return 1
     return 0
 

@@ -53,148 +53,63 @@ def test_stress_comparator_requires_noise_and_cases(monkeypatch, tmp_path):
         compare_prior_stress.main()
 
 
-def test_colominas_history_without_noise_is_not_parity(monkeypatch, tmp_path):
-    import sys
-
+def test_colominas_resume_requires_exact_prefix():
     from tools import run_colominas_cupy_sweep as sweep
 
-    rows = [{"I": size, "seed": seed} for seed in range(100) for size in sweep.SIZES]
-    monkeypatch.setattr(sweep, "load_rows", lambda path: rows)
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        ["run_colominas_cupy_sweep.py", "--max-runs", "1", "--output", str(tmp_path / "out.jsonl")],
-    )
-    assert sweep.main() == 2
-    assert not (tmp_path / "out.jsonl").exists()
+    pair = (50, 0)
+    W = np.random.default_rng(0).normal(size=(50, 1000))
+    noise_sha = sweep.sha256(W.tobytes())
+    cpu_sha = "cpu-source"
+    selection_sha = sweep.sha256(json.dumps([pair]).encode())
+    baseline_sha = sweep.sha256(f"{cpu_sha}:{noise_sha}:epsilon=0.2:max_imf=-1".encode())
+    row = {
+        "I": 50,
+        "seed": 0,
+        "pass": True,
+        "failure_reasons": [],
+        "selection_sha256": selection_sha,
+        "protocol_sha256": "protocol",
+        "cpu_source_sha256": cpu_sha,
+        "noise_sha256": noise_sha,
+        "baseline_sha256": baseline_sha,
+        "diagnostics_cpu": {"stop_reason": "natural"},
+        "diagnostics_gpu": {"stop_reason": "natural"},
+    }
+    row["record_sha256"] = sweep.record_sha256(row)
+    sweep.checked_prefix([row], [pair], selection_sha, "protocol", cpu_sha, 1000)
+    for field, bad in [
+        ("noise_sha256", "stale"),
+        ("protocol_sha256", "stale"),
+        ("baseline_sha256", "stale"),
+        ("selection_sha256", "stale"),
+        ("pass", False),
+        ("record_sha256", "stale"),
+    ]:
+        changed = {**row, field: bad}
+        with pytest.raises(ValueError, match="Resume mismatch"):
+            sweep.checked_prefix([changed], [pair], selection_sha, "protocol", cpu_sha, 1000)
+    with pytest.raises(ValueError, match="Resume mismatch"):
+        sweep.checked_prefix([{**row, "seed": 1}], [pair], selection_sha, "protocol", cpu_sha, 1000)
 
 
-def test_colominas_resume_rejects_nonfinite_baseline(monkeypatch, tmp_path):
-    import hashlib
-    import sys
-
+def test_colominas_compare_requires_full_components_and_states():
     from tools import run_colominas_cupy_sweep as sweep
 
-    banks = {size: np.ones((size, 4)) for size in sweep.SIZES}
-    baseline = [
-        {
-            "I": size,
-            "seed": seed,
-            "W": banks[size],
-            "modes": 1,
-            "stop_reason": "max_imf",
-            **{key: float("nan") for key in sweep.METRICS},
-        }
-        for seed in range(100)
-        for size in sweep.SIZES
-    ]
-    existing = [
-        {
-            "I": size,
-            "seed": seed,
-            "pass": True,
-            "noise_sha256": hashlib.sha256(banks[size].tobytes()).hexdigest(),
-        }
-        for seed in range(100)
-        for size in sweep.SIZES
-    ]
-    base_path, output = tmp_path / "baseline.jsonl", tmp_path / "out.jsonl"
-    output.write_text("", encoding="utf-8")
-    monkeypatch.setattr(
-        sweep, "load_rows", lambda path: baseline if path == base_path else existing
+    fast, slow, x = sweep.signal_parts()
+    a = np.stack((fast, slow))
+    info = {
+        "stages": [{"missing_noise_modes": 0, "sift_iterations": [3]}],
+        "stop_reason": "natural",
+        "natural_termination": True,
+        "noise_mode_counts": [2],
+    }
+    assert sweep.compare(a, a.copy(), info, info, fast, slow, x)["pass"]
+    assert "components" in sweep.compare(a, a + 0.01, info, info, fast, slow, x)["failure_reasons"]
+    changed = {**info, "stages": [{"missing_noise_modes": 1, "sift_iterations": [3]}]}
+    assert (
+        "discrete_diagnostics"
+        in sweep.compare(a, a, info, changed, fast, slow, x)["failure_reasons"]
     )
-    monkeypatch.setattr(sweep, "signal_parts", lambda: (np.ones(4), np.ones(4), np.ones(4)))
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "run_colominas_cupy_sweep.py",
-            "--baseline",
-            str(base_path),
-            "--output",
-            str(output),
-            "--max-runs",
-            "1",
-        ],
-    )
-    with pytest.raises(ValueError, match="baseline"):
-        sweep.main()
-
-
-def test_colominas_resume_requires_matching_record_and_baseline(monkeypatch, tmp_path):
-    import hashlib
-    import sys
-
-    from tools import run_colominas_cupy_sweep as sweep
-
-    banks = {size: np.ones((size, 4)) for size in sweep.SIZES}
-    baseline = [
-        {
-            "I": size,
-            "seed": seed,
-            "W": banks[size],
-            "modes": 1,
-            "stop_reason": "max_imf",
-            **{key: 0.0 for key in sweep.METRICS},
-        }
-        for seed in range(100)
-        for size in sweep.SIZES
-    ]
-    protocol = sweep.protocol_sha256()
-    existing = [
-        {
-            "I": row["I"],
-            "seed": row["seed"],
-            "pass": True,
-            "noise_sha256": hashlib.sha256(banks[row["I"]].tobytes()).hexdigest(),
-            "baseline_sha256": sweep.baseline_sha256(row),
-            "protocol_sha256": protocol,
-            "modes_cpu": 1,
-            "modes_gpu": 1,
-            "stop_cpu": "max_imf",
-            "stop_gpu": "max_imf",
-            "cpu": {key: 0.0 for key in sweep.METRICS},
-            "gpu": {key: 0.0 for key in sweep.METRICS},
-        }
-        for row in baseline
-    ]
-    base_path, output = tmp_path / "baseline.jsonl", tmp_path / "out.jsonl"
-    output.write_text("", encoding="utf-8")
-    monkeypatch.setattr(
-        sweep, "load_rows", lambda path: baseline if path == base_path else existing
-    )
-    monkeypatch.setattr(sweep, "signal_parts", lambda: (np.ones(4), np.ones(4), np.ones(4)))
-    monkeypatch.setattr(
-        sweep, "ICEEMDAN", lambda **kwargs: (_ for _ in ()).throw(RuntimeError("recompute"))
-    )
-    monkeypatch.setattr(
-        sys,
-        "argv",
-        [
-            "run_colominas_cupy_sweep.py",
-            "--baseline",
-            str(base_path),
-            "--output",
-            str(output),
-            "--max-runs",
-            "1",
-        ],
-    )
-    assert sweep.main() == 0
-
-    gpu = existing[0].pop("gpu")
-    with pytest.raises(RuntimeError, match="recompute"):
-        sweep.main()
-    existing[0]["gpu"] = gpu
-
-    existing[0]["protocol_sha256"] = "stale"
-    with pytest.raises(RuntimeError, match="recompute"):
-        sweep.main()
-    existing[0]["protocol_sha256"] = protocol
-
-    baseline[0]["left_energy"] = 1.0  # W is unchanged.
-    with pytest.raises(RuntimeError, match="recompute"):
-        sweep.main()
 
 
 @pytest.mark.parametrize(
