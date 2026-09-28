@@ -6,6 +6,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_batch_sanitizer_requires_case_marker_and_zero_error_summary():
+    from tools.run_batch_sanitizer import classify
+
+    marker = {"case": "odd_i1"}
+    assert classify(0, [0], marker) == "PASS"
+    assert classify(0, [], marker) == "BLOCKED_NO_SUMMARY"
+    assert classify(0, [0], None) == "BLOCKED_NO_PASS_MARKER"
+    assert classify(0, [1], marker) == "FAIL_SANITIZER"
+    assert classify(1, [0], marker) == "FAIL_CASE"
+    assert classify(0, [0], marker, timed_out=True) == "BLOCKED_TIMEOUT"
+    assert classify(0, [0], marker, crashed=True) == "BLOCKED_CRASH"
+
+
 def test_reference_intact():
     assert (
         hashlib.sha256((ROOT / "reference/ICEEMDAN_cpu.py").read_bytes()).hexdigest()
