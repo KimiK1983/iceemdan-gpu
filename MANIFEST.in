@@ -1,0 +1,6 @@
+include reference/ICEEMDAN_cpu.py
+include tests/conftest.py tests/cpu_surrogate.py
+recursive-include tests/fixtures *.json *.npz
+recursive-include docs *.md *.json
+recursive-include tools *.py
+recursive-include examples *.py

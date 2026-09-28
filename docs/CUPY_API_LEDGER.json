@@ -1,0 +1,612 @@
+{
+  "cupy_version": "14.2.0",
+  "release_date": "2026-08-20",
+  "release_source": "https://pypi.org/project/cupy-cuda12x/",
+  "policy": "API documentation is recorded for product calls. The consulted_before_implementation field states whether review preceded first use. No execution is inferred from documentation.",
+  "operations": {
+    "cupy.RawKernel": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.RawKernel.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-26",
+      "consulted_before_implementation": true,
+      "notes": "NVRTC kernel accepts contiguous raw pointers; views are not interpreted through strides. Compilation is cached per device. The fixed-output extrema kernel is warmed before stream capture.",
+      "tagged_source": null
+    },
+    "cupy.cuda.Stream": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.Stream.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-27",
+      "consulted_before_implementation": true,
+      "notes": "A nonblocking stream is warmed before capturing the conditional graph body; synchronization occurs after the whole graph execution.",
+      "tagged_source": null
+    },
+    "cupy.cuda.get_allocator": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.get_allocator.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-28",
+      "consulted_before_implementation": false,
+      "notes": "Returns the active allocator used as the base for explicit capture workspace retention.",
+      "tagged_source": null
+    },
+    "cupy.cuda.using_allocator": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.using_allocator.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-28",
+      "consulted_before_implementation": false,
+      "notes": "Thread-local allocator scope retains MemoryPointer owners through graph close.",
+      "tagged_source": null
+    },
+    "cupy.cuda.alloc": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.alloc.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-28",
+      "consulted_before_implementation": false,
+      "notes": "Reserve one bounded device arena before conditional capture; no device algorithm runs during this allocation.",
+      "tagged_source": null
+    },
+    "cupy.cuda.MemoryPointer": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.MemoryPointer.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-28",
+      "consulted_before_implementation": false,
+      "notes": "Create 256-byte-aligned nonoverlapping pointers into the retained arena for captured CuPy temporaries.",
+      "tagged_source": null
+    },
+    "cupy.cuda.get_current_stream": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cuda.get_current_stream.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-27",
+      "consulted_before_implementation": true,
+      "notes": "Record an event on the producing stream and make the graph stream wait without transferring intermediate data to the host.",
+      "tagged_source": null
+    },
+    "cupy.asarray": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.asarray.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "blocking=False is asynchronous by default; use blocking=True for owned host input. Never build an array from nested device scalars; stack them.",
+      "tagged_source": null
+    },
+    "cupy.broadcast_to": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.broadcast_to.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-27",
+      "consulted_before_implementation": false,
+      "notes": "Broadcast the device scalar stage standard deviation for deferred diagnostics; the returned view is read-only and requires no host transfer.",
+      "tagged_source": null
+    },
+    "cupy.array": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.array.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "blocking=False is asynchronous by default; use blocking=True for owned host input. Never build an array from nested device scalars; stack them.",
+      "tagged_source": null
+    },
+    "cupy.empty": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.empty.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit dtype. No uninitialized value is read. Tagged docstrings corroborate older cached stable pages.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_creation/basic.py"
+    },
+    "cupy.zeros": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.zeros.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit dtype. No uninitialized value is read. Tagged docstrings corroborate older cached stable pages.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_creation/basic.py"
+    },
+    "cupy.ones": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ones.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit dtype. No uninitialized value is read. Tagged docstrings corroborate older cached stable pages.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_creation/basic.py"
+    },
+    "cupy.zeros_like": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.zeros_like.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit dtype. No uninitialized value is read. Tagged docstrings corroborate older cached stable pages.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_creation/basic.py"
+    },
+    "cupy.full": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.full.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit dtype. No uninitialized value is read. Tagged docstrings corroborate older cached stable pages.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_creation/basic.py"
+    },
+    "cupy.arange": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.arange.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Half-open bounds; sample indices and index arrays use explicit dtype.",
+      "tagged_source": null
+    },
+    "cupy.concatenate": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.concatenate.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Only join compatible device arrays, including explicit scalar-to-length-one arrays. Preserve axis and realization order.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_manipulation/join.py"
+    },
+    "cupy.stack": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.stack.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Only join compatible device arrays, including explicit scalar-to-length-one arrays. Preserve axis and realization order.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_manipulation/join.py"
+    },
+    "cupy.vstack": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.vstack.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Only join compatible device arrays, including explicit scalar-to-length-one arrays. Preserve axis and realization order.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_manipulation/join.py"
+    },
+    "cupy.diff": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.diff.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Integer/float difference; boolean diff is inequality. Cast zero-run mask to int8 first.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/sumprod.py"
+    },
+    "cupy.flatnonzero": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.flatnonzero.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Flattened indices; data-dependent length can synchronize.",
+      "tagged_source": null
+    },
+    "cupy.sort": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.sort.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Stable sort; zeros/plateau indices preserve round-to-even convention.",
+      "tagged_source": null
+    },
+    "cupy.rint": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.rint.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Nearest integer; verify ties-to-even with executable vectors before GPU acceptance.",
+      "tagged_source": null
+    },
+    "cupy.absolute": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.absolute.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise absolute value; preserve arithmetic grouping.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/misc.py"
+    },
+    "cupy.max": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.max.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.mean": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.mean.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.std": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.std.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.median": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.median.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.sum": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.sum.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.ptp": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ptp.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Reductions return device scalars; .item is an explicit synchronization. std uses explicit ddof; even-length median must match NumPy.",
+      "tagged_source": null
+    },
+    "cupy.all": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.all.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Return device scalar/array. Consume scalar intentionally for Python control, not NumPy evaluation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/truth.py"
+    },
+    "cupy.any": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.any.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Return device scalar/array. Consume scalar intentionally for Python control, not NumPy evaluation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/truth.py"
+    },
+    "cupy.isfinite": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.isfinite.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "True excludes infinity and NaN, device ufunc.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/content.py"
+    },
+    "cupy.array_equal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.array_equal.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Exact equality used for stagnation; not a tolerant comparison.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.where": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.where.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Three-argument selection. Safe denominator before division; no unsupported divide(where=...).",
+      "tagged_source": null
+    },
+    "cupy.gradient": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.gradient.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Irregular coordinates supported; edge_order=1 to preserve reference.",
+      "tagged_source": null
+    },
+    "cupy.linalg.solve": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.linalg.solve.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Use cupyx.errstate(linalg=\"raise\") to inspect solver failures; preserve the natural three-point system.",
+      "tagged_source": null
+    },
+    "cupyx.errstate": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.linalg.solve.html",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupyx/_ufunc_config.py",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Source docs TODO. Source reviewed: linalg ignore/raise supported; over/invalid/divide non-None raise NotImplementedError. Do not copy np.errstate(over=...)."
+    },
+    "cupy.asnumpy": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.asnumpy.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Only explicit output/validation boundary. blocking=True. No call in numerical modules.",
+      "tagged_source": null
+    },
+    "cupy.cuda.Device": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.cuda.Device.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Context manager restores device; id, mem_info, compute_capability and synchronize documented.",
+      "tagged_source": null
+    },
+    "cupy.cuda.runtime.getDeviceCount": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.cuda.runtime.getDeviceCount.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Returns available device count; failures propagate as environment BLOCKED.",
+      "tagged_source": null
+    },
+    "cupy.random.Philox4x3210": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.random.Philox4x3210.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Explicit cuRAND generator, not default_rng (XORWOW). No claimed NumPy PCG64 sequence equivalence.",
+      "tagged_source": null
+    },
+    "cupy.random.Generator": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.random.Generator.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Generator methods accept device output dtype; no cross-version bitstream guarantee.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/random/_generator_api.pyx"
+    },
+    "cupy.random.Generator.standard_normal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.random.Generator.html#cupy.random.Generator.standard_normal",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/random/_generator_api.pyx",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "standard_normal(size,dtype=float64); uniform(low,high,size,dtype=float64). Native stream is separately versioned, request counter restored on failure."
+    },
+    "cupy.random.Generator.uniform": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.random.Generator.html#cupy.random.Generator.uniform",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/random/_generator_api.pyx",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "standard_normal(size,dtype=float64); uniform(low,high,size,dtype=float64). Native stream is separately versioned, request counter restored on failure."
+    },
+    "cupyx.scipy.interpolate.CubicSpline": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupyx.scipy.interpolate.CubicSpline.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Preserve exact interpolation choice. CubicSpline only with >3 supports. Akima classic, not MAKIMA. interp1d axis/default/error behavior checked individually.",
+      "tagged_source": null
+    },
+    "cupyx.scipy.interpolate.PchipInterpolator": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupyx.scipy.interpolate.PchipInterpolator.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Preserve exact interpolation choice. CubicSpline only with >3 supports. Akima classic, not MAKIMA. interp1d axis/default/error behavior checked individually.",
+      "tagged_source": null
+    },
+    "cupyx.scipy.interpolate.Akima1DInterpolator": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupyx.scipy.interpolate.Akima1DInterpolator.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Preserve exact interpolation choice. CubicSpline only with >3 supports. Akima classic, not MAKIMA. interp1d axis/default/error behavior checked individually.",
+      "tagged_source": null
+    },
+    "cupyx.scipy.interpolate.CubicHermiteSpline": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupyx.scipy.interpolate.CubicHermiteSpline.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Preserve exact interpolation choice. CubicSpline only with >3 supports. Akima classic, not MAKIMA. interp1d axis/default/error behavior checked individually.",
+      "tagged_source": null
+    },
+    "cupyx.scipy.interpolate.interp1d": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupyx.scipy.interpolate.interp1d.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Preserve exact interpolation choice. CubicSpline only with >3 supports. Akima classic, not MAKIMA. interp1d axis/default/error behavior checked individually.",
+      "tagged_source": null
+    },
+    "cupy.ndarray": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Device storage; metadata attributes shape, ndim, size, nbytes, dtype, device.id stay host. Basic and advanced indexing supported. Integer-array out-of-range wraps: generated indices must be in range.",
+      "tagged_source": null
+    },
+    "cupy.ndarray.astype": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.astype",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.copy": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.copy",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.reshape": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.reshape",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.sum": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.sum",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.item": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.item",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__getitem__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__getitem__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__setitem__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__setitem__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__len__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__len__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__iter__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__iter__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__bool__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__bool__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__float__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__float__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ndarray.__int__": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ndarray.html#cupy.ndarray.__int__",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Read ndarray methods. item/conversion used only for explicit scalar control. copy owns result; reshape preserves order; no repeated-index scatter writes."
+    },
+    "cupy.ufunc": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.ufunc.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise broadcasting for arrays/scalars; no assumed NumPy-only keyword arguments.",
+      "tagged_source": null
+    },
+    "cupy.add": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.add.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise arithmetic, preserve written grouping; no fusion/fast-math. Tagged source corroborates stale documentation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/arithmetic.py"
+    },
+    "cupy.subtract": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.subtract.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise arithmetic, preserve written grouping; no fusion/fast-math. Tagged source corroborates stale documentation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/arithmetic.py"
+    },
+    "cupy.multiply": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.multiply.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise arithmetic, preserve written grouping; no fusion/fast-math. Tagged source corroborates stale documentation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/arithmetic.py"
+    },
+    "cupy.divide": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.divide.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise arithmetic, preserve written grouping; no fusion/fast-math. Tagged source corroborates stale documentation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/arithmetic.py"
+    },
+    "cupy.negative": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.negative.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Elementwise arithmetic, preserve written grouping; no fusion/fast-math. Tagged source corroborates stale documentation.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/arithmetic.py"
+    },
+    "cupy.equal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.equal.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.not_equal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.not_equal.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.less": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.less.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.less_equal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.less_equal.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.greater": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.greater.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.greater_equal": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.greater_equal.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Strict comparisons including equality in boundary branches unchanged; no epsilon tie rule.",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_logic/comparison.py"
+    },
+    "cupy.bitwise_and": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.bitwise_and.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Boolean masks use elementwise operators &, | (not Python and/or).",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_binary/elementwise.py"
+    },
+    "cupy.bitwise_or": {
+      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.bitwise_or.html",
+      "target_version": "14.2.0",
+      "consulted_date": "2026-09-25",
+      "consulted_before_implementation": true,
+      "notes": "Boolean masks use elementwise operators &, | (not Python and/or).",
+      "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_binary/elementwise.py"
+    }
+  }
+}
