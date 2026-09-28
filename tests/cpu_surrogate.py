@@ -86,6 +86,7 @@ def install():
         "vstack",
         "diff",
         "flatnonzero",
+        "cumsum",
         "sort",
         "rint",
         "absolute",
@@ -104,6 +105,18 @@ def install():
     ]:
         setattr(cp, name, wrap(getattr(np, name)))
     cp.asnumpy = lambda x, **kw: np.array(x, copy=True)
+
+    def raw_kernel(source, name):
+        if name != "compact_indices":
+            raise RuntimeError(f"Unexpected surrogate kernel: {name}")
+
+        def launch(grid, block, args):
+            mask, prefix, output, n = args
+            output[:] = np.flatnonzero(mask[:n])
+
+        return launch
+
+    cp.RawKernel = raw_kernel
     cp.linalg = types.SimpleNamespace(solve=wrap(np.linalg.solve))
     cp.random = types.SimpleNamespace(Philox4x3210=Philox, Generator=Generator)
     cp.cuda = types.SimpleNamespace(

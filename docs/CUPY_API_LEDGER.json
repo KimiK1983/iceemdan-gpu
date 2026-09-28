@@ -164,12 +164,12 @@
       "notes": "Integer/float difference; boolean diff is inequality. Cast zero-run mask to int8 first.",
       "tagged_source": "https://github.com/cupy/cupy/blob/v14.2.0/cupy/_math/sumprod.py"
     },
-    "cupy.flatnonzero": {
-      "documentation": "https://docs.cupy.dev/en/stable/reference/generated/cupy.flatnonzero.html",
+    "cupy.cumsum": {
+      "documentation": "https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cumsum.html",
       "target_version": "14.2.0",
-      "consulted_date": "2026-09-25",
+      "consulted_date": "2026-09-28",
       "consulted_before_implementation": true,
-      "notes": "Flattened indices; data-dependent length can synchronize.",
+      "notes": "Int64 prefix counts for one-dimensional boolean mask compaction; result length is read explicitly before a separate scatter kernel.",
       "tagged_source": null
     },
     "cupy.sort": {

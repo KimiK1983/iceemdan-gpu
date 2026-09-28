@@ -99,12 +99,12 @@ Only join compatible device arrays, including explicit scalar-to-length-one arra
 
 Integer/float difference; boolean diff is inequality. Cast zero-run mask to int8 first.
 
-## `cupy.flatnonzero`
+## `cupy.cumsum`
 
-- Documentación consultada: https://docs.cupy.dev/en/stable/reference/generated/cupy.flatnonzero.html
-- Versión objetivo: 14.2.0; fecha: 2026-09-25.
+- Documentación consultada: https://docs.cupy.dev/en/v14.2.0/reference/generated/cupy.cumsum.html
+- Versión objetivo: 14.2.0; fecha: 2026-09-28.
 
-Flattened indices; data-dependent length can synchronize.
+Prefijos int64 para compactar una máscara booleana unidimensional. La longitud de salida se lee explícitamente antes del kernel de dispersión; evita el aviso reproducible de `cupy_nonzero_kernel_incomplete_scan` en CuPy 14.2.0 sin filtrar informes del saneador.
 
 ## `cupy.sort`
 

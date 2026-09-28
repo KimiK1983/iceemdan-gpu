@@ -2,6 +2,21 @@ import numpy as np
 import pytest
 
 
+def test_compact_indices_matches_numpy_for_sparse_dense_and_empty_masks(gpu, cp):
+    from iceemdan_cupy.contracts import _flatnonzero
+
+    rng = np.random.default_rng(82)
+    for mask in (
+        np.array([], dtype=bool),
+        np.zeros(1001, dtype=bool),
+        np.ones(999, dtype=bool),
+        rng.random(1001) < 0.35,
+    ):
+        np.testing.assert_array_equal(
+            cp.asnumpy(_flatnonzero(cp.asarray(mask))), np.flatnonzero(mask)
+        )
+
+
 @pytest.mark.parametrize(
     "x",
     [

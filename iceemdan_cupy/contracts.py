@@ -17,6 +17,28 @@ from .runtime import cp, device_array, scalar
 
 EPS = finfo_metadata("float64").eps
 
+_COMPACT_INDICES = cp.RawKernel(
+    r"""
+extern "C" __global__ void compact_indices(const bool* mask, const long long* prefix,
+                                            long long* out, long long n) {
+    long long i = (long long)blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < n && mask[i]) out[prefix[i] - 1] = i;
+}
+""",
+    "compact_indices",
+)
+
+
+def _flatnonzero(mask):
+    """Compact a boolean mask without CuPy 14.2's race-reported nonzero scan."""
+    n = mask.size
+    if not n:
+        return cp.empty(0, dtype="int64")
+    prefix = cp.cumsum(mask, dtype="int64")
+    result = cp.empty(int(prefix[-1].item()), dtype="int64")
+    _COMPACT_INDICES(((n + 127) // 128,), (128,), (mask, prefix, result, n))
+    return result
+
 
 class SiftingConvergenceError(RuntimeError):
     """Candidate has not satisfied the declared IMF criterion."""
@@ -119,15 +141,15 @@ def extrema(T, S):
         sample locations, in that order. Each array has a variable length.
     """
     n = len(S)
-    crosses = cp.flatnonzero(((S[:-1] < 0) & (S[1:] > 0)) | ((S[:-1] > 0) & (S[1:] < 0)))
+    crosses = _flatnonzero(((S[:-1] < 0) & (S[1:] > 0)) | ((S[:-1] > 0) & (S[1:] < 0)))
     zero = cp.concatenate((cp.zeros(1, dtype="bool"), S == 0, cp.zeros(1, dtype="bool"))).astype(
         "int8"
     )
     edges = cp.diff(zero)
-    start = cp.flatnonzero(edges == 1)
-    end = cp.flatnonzero(edges == -1) - 1
+    start = _flatnonzero(edges == 1)
+    end = _flatnonzero(edges == -1) - 1
     zeros = cp.sort(cp.concatenate((crosses, cp.rint((start + end) / 2.0))))
-    starts = cp.concatenate((cp.zeros(1, dtype="int64"), cp.flatnonzero(S[1:] != S[:-1]) + 1))
+    starts = cp.concatenate((cp.zeros(1, dtype="int64"), _flatnonzero(S[1:] != S[:-1]) + 1))
     ends = cp.concatenate((starts[1:] - 1, cp.full(1, n - 1, dtype="int64")))
     values = S[starts]
     if len(values) < 3:
