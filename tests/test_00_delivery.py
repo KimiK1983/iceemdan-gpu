@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_batch_sanitizer_requires_case_marker_and_zero_error_summary():
-    from tools.run_batch_sanitizer import classify
+    from tools.run_batch_sanitizer import classify, summary_counts
 
     marker = {"case": "odd_i1"}
     assert classify(0, [0], marker) == "PASS"
@@ -17,6 +17,20 @@ def test_batch_sanitizer_requires_case_marker_and_zero_error_summary():
     assert classify(1, [0], marker) == "FAIL_CASE"
     assert classify(0, [0], marker, timed_out=True) == "BLOCKED_TIMEOUT"
     assert classify(0, [0], marker, crashed=True) == "BLOCKED_CRASH"
+    assert summary_counts("memcheck", "ERROR SUMMARY: 0 errors") == [0]
+    assert summary_counts(
+        "racecheck", "RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)"
+    ) == [0, 0, 0]
+    assert (
+        classify(
+            0,
+            summary_counts(
+                "racecheck", "RACECHECK SUMMARY: 1 hazard displayed (1 error, 0 warnings)"
+            ),
+            marker,
+        )
+        == "FAIL_SANITIZER"
+    )
 
 
 def test_reference_intact():

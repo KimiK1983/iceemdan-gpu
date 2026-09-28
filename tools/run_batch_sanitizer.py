@@ -34,22 +34,33 @@ def classify(returncode, summaries, marker, timed_out=False, crashed=False):
     return "PASS"
 
 
+def summary_counts(tool, log_text):
+    if tool == "racecheck":
+        matches = re.findall(
+            r"RACECHECK SUMMARY:\s*(\d+) hazards? displayed \((\d+) errors?, (\d+) warnings?\)",
+            log_text,
+        )
+        return [int(value) for match in matches for value in match]
+    return [int(value) for value in re.findall(r"ERROR SUMMARY:\s*(\d+) errors?", log_text)]
+
+
 def sanitizer_path(explicit):
     if explicit:
         path = explicit
     elif os.environ.get("COMPUTE_SANITIZER"):
         path = Path(os.environ["COMPUTE_SANITIZER"])
-    elif found := shutil.which("compute-sanitizer"):
-        path = Path(found)
     else:
         matches = sorted(
             ROOT.parent.glob(
                 "ComputeSanitizer_*/extracted/*/compute-sanitizer/compute-sanitizer.exe"
             )
         )
-        if not matches:
+        if matches:
+            path = matches[-1]
+        elif found := shutil.which("compute-sanitizer"):
+            path = Path(found)
+        else:
             raise FileNotFoundError("Compute Sanitizer not found; pass --sanitizer PATH.")
-        path = matches[-1]
     path = path.resolve()
     if not path.is_file():
         raise FileNotFoundError(path)
@@ -113,7 +124,7 @@ def run_cell(sanitizer, python, tool, case, timeout, output_dir):
         stdout, _ = process.communicate(timeout=15)
     stdout_file.write_text(stdout, encoding="utf-8")
     log_text = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
-    summaries = [int(x) for x in re.findall(r"ERROR SUMMARY:\s*(\d+)", log_text)]
+    summaries = summary_counts(tool, log_text)
     marker = None
     for line in stdout.splitlines():
         if line.startswith(PASS_PREFIX):
@@ -134,7 +145,7 @@ def run_cell(sanitizer, python, tool, case, timeout, output_dir):
         "status": status,
         "returncode": process.returncode,
         "seconds": round(time.perf_counter() - start, 3),
-        "error_summaries": summaries,
+        "summary_counts": summaries,
         "marker": marker,
         "command": command,
         "log": str(log.relative_to(ROOT)),
