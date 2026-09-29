@@ -1,6 +1,7 @@
 # ICEEMDAN GPU
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
+[![CI: CPU surrogate (no CUDA)](https://github.com/KimiK1983/iceemdan-gpu/actions/workflows/cpu-surrogate.yml/badge.svg?branch=main)](https://github.com/KimiK1983/iceemdan-gpu/actions/workflows/cpu-surrogate.yml)
 
 An importable CUDA implementation of **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN). Install as `iceemdan-gpu`; import `iceemdan_cupy`. It has a scalar GPU reference route (`batch_emd=False`, the default), a supported accelerated route (`batch_emd=True, graph_control=False`), and an experimental graph route (`graph_control=True`).
 
@@ -18,7 +19,7 @@ Requires Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, a compatible NVIDIA 
 python -m pip install .
 ```
 
-When the `v0.2.0` tag is published, install from GitHub with `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
+Install the published `v0.2.0` release from GitHub with `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
 
 ```python
 import cupy as cp
@@ -47,7 +48,11 @@ The [500 matched CPU/GPU rows](evidence/colominas_500_pairs.jsonl), [independent
 | 400 | 31.473 | 1.800 | 17.490 |
 | 800 | 66.987 | 1.913 | 35.010 |
 
-Each timing is a median of three complete runs after one warmup per route on the stated machine; the [protocol and limitations](docs/COLOMINAS_500_RESULTS.md) give exact commands, hashes and hardware. The [paper figure map](docs/PAPER_REPRODUCIBILITY.md) records which of Figures 1–15 have evidence, candidate sources or unresolved inputs.
+![Measured CPU/GPU median ratios for 50, 100, 200, 400, and 800 trials](assets/benchmark_speedup.svg)
+
+*On the published 1,000-sample synthetic signal and Windows 11 / RTX 5080 Laptop protocol, GPU batch was 3.15×–35.01× faster than serial CPU. Generated from the [versioned benchmark](evidence/benchmark_cpu_batch_5_sizes.json) by [`scripts/make_benchmark_figure.py`](scripts/make_benchmark_figure.py); see the [protocol and limits](docs/COLOMINAS_500_RESULTS.md).*
+
+Each timing is a median of three complete runs after one warmup per route on the stated machine. The [paper figure map](docs/PAPER_REPRODUCIBILITY.md) records which of Figures 1–15 have evidence, candidate sources or unresolved inputs.
 
 ## Public recordings
 

@@ -1,6 +1,7 @@
 # ICEEMDAN GPU
 
 [![Licencia: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
+[![CI: sustituto CPU (sin CUDA)](https://github.com/KimiK1983/iceemdan-gpu/actions/workflows/cpu-surrogate.yml/badge.svg?branch=main)](https://github.com/KimiK1983/iceemdan-gpu/actions/workflows/cpu-surrogate.yml)
 
 Implementación importable de **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN) para CUDA. Se instala como `iceemdan-gpu` y se importa como `iceemdan_cupy`. Ofrece una ruta GPU escalar de referencia (`batch_emd=False`, predeterminada), una ruta acelerada respaldada (`batch_emd=True, graph_control=False`) y una ruta de grafo experimental (`graph_control=True`).
 
@@ -18,7 +19,7 @@ Requiere Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, una GPU NVIDIA y un 
 python -m pip install .
 ```
 
-Cuando se publique la etiqueta `v0.2.0`, instale desde GitHub con `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
+Instale la versión publicada `v0.2.0` desde GitHub con `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
 
 ```python
 import cupy as cp
@@ -47,7 +48,11 @@ Quedan versionados los [500 pares CPU/GPU](evidence/colominas_500_pairs.jsonl), 
 | 400 | 31.473 | 1.800 | 17.490 |
 | 800 | 66.987 | 1.913 | 35.010 |
 
-Cada tiempo es la mediana de tres ejecuciones completas tras una preparación por ruta en el equipo indicado. Consulte el [protocolo, comandos y límites](docs/COLOMINAS_500_RESULTS.md) y el [mapa de las Figuras 1–15](docs/PAPER_REPRODUCIBILITY.md).
+![Razones medidas de las medianas CPU/GPU para 50, 100, 200, 400 y 800 realizaciones](assets/benchmark_speedup.svg)
+
+*En la señal sintética publicada de 1000 muestras y el protocolo Windows 11 / RTX 5080 Laptop, la ruta GPU batch fue entre 3,15× y 35,01× más rápida que la CPU serial. Figura generada desde el [benchmark versionado](evidence/benchmark_cpu_batch_5_sizes.json) con [`scripts/make_benchmark_figure.py`](scripts/make_benchmark_figure.py); consulte el [protocolo y sus límites](docs/COLOMINAS_500_RESULTS.md).*
+
+Cada tiempo es la mediana de tres ejecuciones completas tras una preparación por ruta en el equipo indicado. Consulte el [mapa de las Figuras 1–15](docs/PAPER_REPRODUCIBILITY.md).
 
 ## Registros públicos
 
