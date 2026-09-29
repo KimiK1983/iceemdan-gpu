@@ -24,7 +24,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 STAGES = {
-    "0": ["tests/test_00_delivery.py"],
+    "0": ["tests/test_00_delivery.py", "tests/test_10_public_scripts.py"],
     "1": ["tests/test_01_contracts_extrema.py"],
     "2": ["tests/test_02_geometry.py"],
     "3": ["tests/test_03_emd.py"],

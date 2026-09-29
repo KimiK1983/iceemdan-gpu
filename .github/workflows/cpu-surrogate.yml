@@ -1,0 +1,29 @@
+name: Static and CPU surrogate checks (no CUDA)
+
+on: [push, pull_request]
+
+jobs:
+  cpu-surrogate:
+    name: CPU surrogate only, no CUDA (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install package and validation tools
+        shell: bash
+        run: python -m pip install . "pytest>=9,<10" "ruff==0.16.9" "mypy==2.3.1" "scipy==1.17.0"
+      - name: Static checks
+        shell: bash
+        run: |
+          python -m ruff check iceemdan_cupy tests tools examples scripts
+          python -m ruff format --check iceemdan_cupy tests tools examples scripts
+          python -m mypy iceemdan_cupy
+      - name: CPU surrogate acceptance (not CUDA evidence)
+        shell: bash
+        run: python tools/validate.py --stage all --mode cpu-surrogate

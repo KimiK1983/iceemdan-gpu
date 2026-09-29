@@ -1,6 +1,15 @@
+include README.es.md
 include reference/ICEEMDAN_cpu.py
-include tests/conftest.py tests/cpu_surrogate.py
-recursive-include tests/fixtures *.json *.npz
+recursive-include tests *.py *.json *.npz
 recursive-include docs *.md *.json
 recursive-include tools *.py
 recursive-include examples *.py
+recursive-include scripts *.py
+recursive-include assets *.svg
+recursive-include evidence *.json *.jsonl
+prune data
+prune outputs
+prune results
+prune build
+prune dist
+global-exclude *.py[cod]
