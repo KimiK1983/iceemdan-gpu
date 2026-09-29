@@ -1,1 +1,3 @@
 evidence/** -text
+*.py text eol=lf
+pyproject.toml text eol=lf
