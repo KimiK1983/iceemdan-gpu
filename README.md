@@ -18,7 +18,7 @@ Requires Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, a compatible NVIDIA 
 python -m pip install .
 ```
 
-After this repository is published and tagged, a GitHub install can use `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@<tag>"`. The repository has no configured remote or published tag at this review checkpoint; replace `<tag>` with the actual release tag when one exists.
+When the `v0.2.0` tag is published, install from GitHub with `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
 
 ```python
 import cupy as cp

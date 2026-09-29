@@ -18,7 +18,7 @@ Requiere Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, una GPU NVIDIA y un 
 python -m pip install .
 ```
 
-Cuando se publique y etiquete este repositorio, la instalación desde GitHub podrá usar `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@<tag>"`. En este punto de revisión no hay remoto ni etiqueta publicados; sustituya `<tag>` por la etiqueta real.
+Cuando se publique la etiqueta `v0.2.0`, instale desde GitHub con `python -m pip install "git+https://github.com/KimiK1983/iceemdan-gpu.git@v0.2.0"`.
 
 ```python
 import cupy as cp

@@ -1,4 +1,4 @@
-# Estado de la candidata local GPU 0.2.0
+# Estado de validación de GPU v0.2.0
 
 Fecha: 2026-09-28. Entorno: Windows 11, Python 3.13.14, CuPy 14.2.0, CUDA runtime 12.9 y RTX 5080 Laptop. Configuración respaldada: `batch_emd=True, graph_control=False`.
 
