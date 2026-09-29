@@ -36,10 +36,12 @@ Windows 11, Intel Core Ultra 9 275HX, NVIDIA GeForce RTX 5080 Laptop GPU (16 303
 
 ```powershell
 # Usar el entorno Python 3.13.14 con NumPy 2.3.5 y CuPy 14.2.0.
+# Desde un clon aislado, descargar la fuente CPU pública fijada y verificar su SHA-256.
+python -m scripts.fetch_cpu_v2
 # Ejecutar la siguiente línea cinco veces, secuencialmente; cada bloque añade 100 pares.
-python tools/run_colominas_cupy_sweep.py --max-runs 100 --output results/colominas_500_pairs.jsonl
-python tools/audit_colominas_sweep.py --input results/colominas_500_pairs.jsonl --output results/colominas_500_audit.json
-python tools/benchmark_cpu_batch.py --sizes 50 100 200 400 800 --seed 0 --output results/benchmark_cpu_batch_5_sizes.json
+python tools/run_colominas_cupy_sweep.py --cpu-source data/ICEEMDAN_cpu_v2.0.0.py --max-runs 100 --output results/colominas_500_pairs.jsonl
+python tools/audit_colominas_sweep.py --cpu-source data/ICEEMDAN_cpu_v2.0.0.py --input evidence/colominas_500_pairs.jsonl --output results/colominas_500_audit.json
+python tools/benchmark_cpu_batch.py --cpu-source data/ICEEMDAN_cpu_v2.0.0.py --sizes 50 100 200 400 800 --seed 0 --output results/benchmark_cpu_batch_5_sizes.json
 ```
 
-Archivos locales ignorados por Git: `results/colominas_500_pairs.jsonl` (SHA-256 `5ca7e95561443a969ed9afef9d04cae45e36a653b31ab2c5795d0ef0bb17066e`), `results/colominas_500_audit.json` (SHA-256 `3082c6f263d287dcd409645cbcdd85a9b544fdc823e05452f77e88624eabc873`) y `results/benchmark_cpu_batch_5_sizes.json` (SHA-256 `040feca5068cea5321c630063c0d73b698154efc913a1186a30c90f0b99682c8`). Los cinco logs de bloque también quedan en `results/`. Los hashes de W del benchmark coinciden con las cinco parejas de semilla 0 del barrido. Las matrices W no se publican; se regeneran con la versión de NumPy indicada.
+Evidencia versionada: [500 filas](../evidence/colominas_500_pairs.jsonl) (SHA-256 `5ca7e95561443a969ed9afef9d04cae45e36a653b31ab2c5795d0ef0bb17066e`), [auditoría original](../evidence/colominas_500_audit.json) (SHA-256 `3082c6f263d287dcd409645cbcdd85a9b544fdc823e05452f77e88624eabc873`) y [benchmark](../evidence/benchmark_cpu_batch_5_sizes.json) (SHA-256 `040feca5068cea5321c630063c0d73b698154efc913a1186a30c90f0b99682c8`). Los cinco logs de bloque permanecen en `results/` local e ignorado. La auditoría recalculada desde un clon escribe en `results/` y puede diferir en bytes por el formato del entorno; se compara su contenido. Los hashes de W del benchmark coinciden con las cinco parejas de semilla 0 del barrido. Las matrices W no se publican; se regeneran con la versión de NumPy indicada. La opción `--cpu-source` también admite una ruta local explícita, si su archivo coincide con el SHA indicado.
