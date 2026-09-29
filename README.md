@@ -12,7 +12,7 @@ An importable CUDA implementation of **Improved Complete Ensemble Empirical Mode
 
 ## Install and use
 
-Requires Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, and a compatible NVIDIA GPU and driver. From a clone:
+Requires Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, a compatible NVIDIA GPU and driver, and discoverable CUDA 12 Toolkit libraries. On Windows, set `CUDA_PATH` to the installed Toolkit if CuPy cannot locate its DLLs. From a clone:
 
 ```bash
 python -m pip install .

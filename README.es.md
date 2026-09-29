@@ -12,7 +12,7 @@ Implementación importable de **Improved Complete Ensemble Empirical Mode Decomp
 
 ## Instalación y uso
 
-Requiere Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, una GPU NVIDIA y un controlador compatibles. Desde un clon:
+Requiere Python 3.13, NumPy 2, CuPy `cupy-cuda12x==14.2.0`, una GPU NVIDIA y un controlador compatibles, y bibliotecas detectables de CUDA Toolkit 12. En Windows, establezca `CUDA_PATH` al Toolkit instalado si CuPy no encuentra sus DLL. Desde un clon:
 
 ```bash
 python -m pip install .
