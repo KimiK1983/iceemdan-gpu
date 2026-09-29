@@ -3,12 +3,15 @@
 import argparse
 import hashlib
 import json
+import sys
 import zipfile
 from pathlib import Path
 
+import cupy as cp
 import numpy as np
 
 from iceemdan_cupy import ICEEMDAN as Model
+from iceemdan_cupy import __version__ as gpu_version
 from iceemdan_cupy import to_numpy
 from scripts.fetch_public_data import SOURCES, verify
 
@@ -71,12 +74,15 @@ def main():
     gpu_source_sha256 = hashlib.sha256(
         b"".join(path.read_bytes() for path in sorted((ROOT / "iceemdan_cupy").glob("*.py")))
     ).hexdigest()
+    analysis_script_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     with zipfile.ZipFile(args.archive) as archive:
         names = {Path(name).name: name for name in archive.namelist()}
         header = archive.read(names["cu01.hea"]).decode("ascii").splitlines()[0].split()
         fs = int(header[2])
-        raw = decode_212(archive.read(names["cu01.dat"]))
-        onsets = [sample / fs for sample in vf_onsets(archive.read(names["cu01.atr"]))]
+        record_bytes = archive.read(names["cu01.dat"])
+        annotation_bytes = archive.read(names["cu01.atr"])
+        raw = decode_212(record_bytes)
+        onsets = [sample / fs for sample in vf_onsets(annotation_bytes)]
     start = round(args.start * fs)
     length = round(args.duration * fs)
     x = raw[start : start + length].astype(float)
@@ -89,16 +95,28 @@ def main():
         "candidate_record": "cu01",
         "source_identification": "hypothesis; paper record unspecified",
         "archive_url": SOURCES["cudb"]["url"],
+        "source_page": SOURCES["cudb"]["page"],
+        "license_note": SOURCES["cudb"]["license_note"],
         "archive_sha256": archive_sha256,
+        "record_sha256": hashlib.sha256(record_bytes).hexdigest(),
+        "annotation_sha256": hashlib.sha256(annotation_bytes).hexdigest(),
         "gpu_source_sha256": gpu_source_sha256,
+        "analysis_script_sha256": analysis_script_sha256,
+        "python_version": sys.version.split()[0],
+        "numpy_version": np.__version__,
+        "cupy_version": cp.__version__,
+        "gpu_package_version": gpu_version,
         "gpu_route": "batch_emd=True,graph_control=False",
         "start_s": args.start,
         "duration_s": args.duration,
         "sample_rate_hz": fs,
-        "vf_onsets_s": onsets,
+        "vf_onset_in_window_s": next(
+            (onset for onset in onsets if args.start <= onset < args.start + args.duration), None
+        ),
         "trials": args.trials,
         "epsilon": 0.2,
         "seed": 0,
+        "rng_mode": "cupy_philox",
         "components": len(parts) - 1,
         "stop_reason": model.diagnostics_["stop_reason"],
         "reconstruction_linf": float(np.max(np.abs(parts.sum(axis=0) - x))),

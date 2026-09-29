@@ -2,7 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
-An importable CUDA implementation of **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN). Install as `iceemdan-gpu`; import `iceemdan_cupy`. The supported accelerated route is `batch_emd=True, graph_control=False`. The optional graph route remains experimental.
+An importable CUDA implementation of **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN). Install as `iceemdan-gpu`; import `iceemdan_cupy`. It has a scalar GPU reference route (`batch_emd=False`, the default), a supported accelerated route (`batch_emd=True, graph_control=False`), and an experimental graph route (`graph_control=True`).
 
 [Install and use](#install-and-use) · [Reproducibility](#reproducibility) · [Public recordings](#public-recordings) · [Limits](#limits) · [Español](README.es.md)
 
@@ -51,16 +51,16 @@ Each timing is a median of three complete runs after one warmup per route on the
 
 ## Public recordings
 
-Optional scripts fetch versioned [Keele](https://zenodo.org/records/3921794) and [CUDB 1.0.0](https://physionet.org/content/cudb/1.0.0/) archives and analyze candidate windows on the GPU. The Keele record states noncommercial use; CUDB has its own attribution terms. Review those terms before use. Downloads go to ignored `data/`; metrics, optional arrays and optional plots go to ignored `outputs/`:
+Optional scripts fetch versioned [Keele](https://zenodo.org/records/3921794) and [CUDB 1.0.0](https://physionet.org/content/cudb/1.0.0/) archives and analyze candidate windows on the GPU. The Keele record states noncommercial use; CUDB has its own attribution terms. Review those terms before use. Downloads go to ignored `data/`; regenerated metrics, optional arrays and optional plots go to ignored `outputs/`:
 
 ```bash
 python -m scripts.fetch_public_data keele
 python -m scripts.fetch_public_data cudb
-python -m scripts.analyze_keele --plot-local
-python -m scripts.analyze_cudb --plot-local
+python -m scripts.analyze_keele
+python -m scripts.analyze_cudb
 ```
 
-`--plot-local` needs Matplotlib separately; it is not a runtime dependency. The Keele and CUDB windows are candidate matches, not confirmed paper sources or clinical validation. No biomedical waveform, plot or patient array is versioned.
+The small, executed GPU metric files are [Keele](evidence/public_data_20260928/keele/metrics.json) and [CUDB `cu01`](evidence/public_data_20260928/cudb/metrics.json). They use 100 trials, `epsilon=0.2`, seed 0, and the supported batch route. The [figure map](docs/PAPER_REPRODUCIBILITY.md) ties each window to the paper comparison and records its limits. Add `--plot-local` for a plot kept in `outputs/`; this needs Matplotlib separately. The Keele and CUDB windows are candidate matches, not confirmed paper sources or clinical validation. No biomedical waveform, plot or patient array is versioned.
 
 ## Limits
 

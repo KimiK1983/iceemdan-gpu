@@ -2,7 +2,7 @@
 
 [![Licencia: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 
-Implementación importable de **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN) para CUDA. Se instala como `iceemdan-gpu` y se importa como `iceemdan_cupy`. La ruta acelerada respaldada es `batch_emd=True, graph_control=False`; el control por grafo sigue siendo experimental.
+Implementación importable de **Improved Complete Ensemble Empirical Mode Decomposition with Adaptive Noise** (ICEEMDAN) para CUDA. Se instala como `iceemdan-gpu` y se importa como `iceemdan_cupy`. Ofrece una ruta GPU escalar de referencia (`batch_emd=False`, predeterminada), una ruta acelerada respaldada (`batch_emd=True, graph_control=False`) y una ruta de grafo experimental (`graph_control=True`).
 
 [Instalación y uso](#instalación-y-uso) · [Reproducibilidad](#reproducibilidad) · [Registros públicos](#registros-públicos) · [Límites](#límites) · [English](README.md)
 
@@ -51,16 +51,16 @@ Cada tiempo es la mediana de tres ejecuciones completas tras una preparación po
 
 ## Registros públicos
 
-Los scripts opcionales descargan archivos versionados de [Keele](https://zenodo.org/records/3921794) y [CUDB 1.0.0](https://physionet.org/content/cudb/1.0.0/) para analizar ventanas candidatas en GPU. El registro Keele indica uso no comercial y CUDB tiene condiciones propias de atribución. Revise esas condiciones antes de usar los datos. Las descargas van a `data/` y las métricas, matrices o gráficas opcionales a `outputs/`; ambas carpetas están excluidas de Git.
+Los scripts opcionales descargan archivos versionados de [Keele](https://zenodo.org/records/3921794) y [CUDB 1.0.0](https://physionet.org/content/cudb/1.0.0/) para analizar ventanas candidatas en GPU. El registro Keele indica uso no comercial y CUDB tiene condiciones propias de atribución. Revise esas condiciones antes de usar los datos. Las descargas van a `data/`; las métricas regeneradas, matrices o gráficas opcionales van a `outputs/`. Ambas carpetas están excluidas de Git.
 
 ```bash
 python -m scripts.fetch_public_data keele
 python -m scripts.fetch_public_data cudb
-python -m scripts.analyze_keele --plot-local
-python -m scripts.analyze_cudb --plot-local
+python -m scripts.analyze_keele
+python -m scripts.analyze_cudb
 ```
 
-`--plot-local` requiere instalar Matplotlib aparte; no es dependencia de ejecución. Las ventanas son coincidencias candidatas, sin identidad confirmada respecto del artículo ni validación clínica. No se versiona ningún trazado biomédico ni matriz de paciente.
+Las métricas GPU ejecutadas se publican en archivos pequeños: [Keele](evidence/public_data_20260928/keele/metrics.json) y [CUDB `cu01`](evidence/public_data_20260928/cudb/metrics.json). Usaron 100 realizaciones, `epsilon=0.2`, semilla 0 y la ruta batch respaldada. El [mapa de figuras](docs/PAPER_REPRODUCIBILITY.md) relaciona las ventanas con el artículo y señala sus límites. `--plot-local` crea una gráfica solo en `outputs/` y requiere instalar Matplotlib aparte. Las ventanas son coincidencias candidatas, sin identidad confirmada respecto del artículo ni validación clínica. No se versiona ningún trazado biomédico ni matriz de paciente.
 
 ## Límites
 

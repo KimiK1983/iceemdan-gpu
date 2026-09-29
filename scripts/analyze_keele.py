@@ -4,13 +4,16 @@ import argparse
 import hashlib
 import io
 import json
+import sys
 import wave
 import zipfile
 from pathlib import Path
 
+import cupy as cp
 import numpy as np
 
 from iceemdan_cupy import ICEEMDAN as Model
+from iceemdan_cupy import __version__ as gpu_version
 from iceemdan_cupy import to_numpy
 from scripts.fetch_public_data import SOURCES, verify
 
@@ -35,12 +38,12 @@ def main():
     gpu_source_sha256 = hashlib.sha256(
         b"".join(path.read_bytes() for path in sorted((ROOT / "iceemdan_cupy").glob("*.py")))
     ).hexdigest()
+    analysis_script_sha256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     args.out.mkdir(parents=True, exist_ok=True)
     results = []
-    with (
-        zipfile.ZipFile(args.archive) as archive,
-        wave.open(io.BytesIO(archive.read(RECORD))) as wav,
-    ):
+    with zipfile.ZipFile(args.archive) as archive:
+        record_bytes = archive.read(RECORD)
+    with wave.open(io.BytesIO(record_bytes)) as wav:
         fs = wav.getframerate()
         if wav.getnchannels() != 1 or wav.getsampwidth() != 2:
             raise ValueError("expected mono 16-bit Keele EGG")
@@ -59,8 +62,16 @@ def main():
                 "source_record": RECORD,
                 "source_identification": "candidate from earlier visual matching; unconfirmed",
                 "archive_url": SOURCES["keele"]["url"],
+                "source_page": SOURCES["keele"]["page"],
+                "license_note": SOURCES["keele"]["license_note"],
                 "archive_sha256": archive_sha256,
+                "record_sha256": hashlib.sha256(record_bytes).hexdigest(),
                 "gpu_source_sha256": gpu_source_sha256,
+                "analysis_script_sha256": analysis_script_sha256,
+                "python_version": sys.version.split()[0],
+                "numpy_version": np.__version__,
+                "cupy_version": cp.__version__,
+                "gpu_package_version": gpu_version,
                 "gpu_route": "batch_emd=True,graph_control=False",
                 "start_s": start_s,
                 "duration_s": duration_s,
@@ -69,6 +80,7 @@ def main():
                 "trials": args.trials,
                 "epsilon": 0.2,
                 "seed": 0,
+                "rng_mode": "cupy_philox",
                 "components": len(parts) - 1,
                 "stop_reason": model.diagnostics_["stop_reason"],
                 "reconstruction_linf": float(np.max(np.abs(parts.sum(axis=0) - x))),
